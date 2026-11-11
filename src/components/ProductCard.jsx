@@ -10,7 +10,16 @@ export default function ProductCard({ product, style }) {
   const [imageFailed, setImageFailed] = useState(false);
   const resetTimerRef = useRef(null);
 
-  const hasDiscount = product.oldPrice && product.oldPrice > product.price;
+  const productId = String(product.id || product._id || '');
+  const imageSrc = product.image || product.imageUrl || '';
+  const rating = Number(product.rating) || 0;
+  const reviews = Number(product.reviews) || 0;
+  const oldPrice = Number(product.oldPrice);
+  const hasDiscount = Number.isFinite(oldPrice) && oldPrice > product.price;
+  const badgeClass = String(product.badge || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 
   useEffect(
     () => () => {
@@ -20,7 +29,13 @@ export default function ProductCard({ product, style }) {
   );
 
   const handleAddToCart = () => {
-    dispatch(addToCart(product));
+    dispatch(
+      addToCart({
+        ...product,
+        id: productId,
+        image: imageSrc,
+      }),
+    );
     setJustAdded(true);
     window.clearTimeout(resetTimerRef.current);
     resetTimerRef.current = window.setTimeout(() => setJustAdded(false), 1600);
@@ -29,14 +44,14 @@ export default function ProductCard({ product, style }) {
   return (
     <article className="product-card" style={style}>
       <div className="product-media">
-        {imageFailed ? (
+        {!imageSrc || imageFailed ? (
           <div className="product-image-fallback">
             <Cpu size={38} strokeWidth={1.5} aria-hidden="true" />
             <span>{product.category}</span>
           </div>
         ) : (
           <img
-            src={product.image}
+            src={imageSrc}
             alt={product.name}
             width="900"
             height="675"
@@ -47,13 +62,11 @@ export default function ProductCard({ product, style }) {
 
         <div className="product-badges">
           {product.badge && (
-            <span className={`badge badge-${product.badge.toLowerCase()}`}>
-              {product.badge}
-            </span>
+            <span className={`badge badge-${badgeClass}`}>{product.badge}</span>
           )}
           {hasDiscount && (
             <span className="badge badge-sale">
-              Save {formatCurrency(product.oldPrice - product.price)}
+              Save {formatCurrency(oldPrice - product.price)}
             </span>
           )}
         </div>
@@ -62,11 +75,13 @@ export default function ProductCard({ product, style }) {
       <div className="product-body">
         <div className="product-meta">
           <span className="product-category">{product.category}</span>
-          <span className="product-rating">
-            <Star size={12} fill="currentColor" aria-hidden="true" />
-            {product.rating.toFixed(1)}
-            <span>({product.reviews})</span>
-          </span>
+          {rating > 0 && (
+            <span className="product-rating">
+              <Star size={12} fill="currentColor" aria-hidden="true" />
+              {rating.toFixed(1)}
+              <span>({reviews})</span>
+            </span>
+          )}
         </div>
 
         <h3>{product.name}</h3>
@@ -77,7 +92,7 @@ export default function ProductCard({ product, style }) {
             <span className="product-price">{formatCurrency(product.price)}</span>
             {hasDiscount && (
               <span className="product-old-price">
-                {formatCurrency(product.oldPrice)}
+                {formatCurrency(oldPrice)}
               </span>
             )}
           </div>
@@ -87,6 +102,7 @@ export default function ProductCard({ product, style }) {
             className={`add-to-cart-btn${justAdded ? ' is-added' : ''}`}
             onClick={handleAddToCart}
             aria-label={`Add ${product.name} to cart`}
+            disabled={!productId}
           >
             {justAdded ? (
               <>

@@ -28,7 +28,7 @@ export default function ProductList({ products, hasActiveFilters, onClearFilters
     <div className="product-grid">
       {products.map((product, index) => (
         <ProductCard
-          key={product.id}
+          key={product.id || product._id}
           product={product}
           style={{ '--delay': `${Math.min(index * 35, 280)}ms` }}
         />

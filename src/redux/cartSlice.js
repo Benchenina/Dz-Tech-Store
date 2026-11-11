@@ -21,12 +21,13 @@ const cartSlice = createSlice({
     addToCart: {
       reducer(state, action) {
         const product = action.payload;
+        const id = String(product?.id || product?._id || '');
 
-        if (!product?.id) {
+        if (!id) {
           return;
         }
 
-        const existingItem = state.items.find((item) => item.id === product.id);
+        const existingItem = state.items.find((item) => item.id === id);
 
         if (existingItem) {
           existingItem.quantity = clampQuantity(
@@ -36,10 +37,10 @@ const cartSlice = createSlice({
         }
 
         state.items.push({
-          id: product.id,
+          id,
           name: product.name,
           price: product.price,
-          image: product.image,
+          image: product.image || product.imageUrl || '',
           category: product.category,
           quantity: clampQuantity(product.quantity ?? 1),
         });

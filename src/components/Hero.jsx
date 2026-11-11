@@ -1,7 +1,24 @@
-import { ArrowDown, Sparkles, Star, ShieldCheck, Truck } from 'lucide-react';
+import {
+  ArrowDown,
+  LoaderCircle,
+  Sparkles,
+  Star,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import { formatCurrency } from '../utils/formatCurrency';
 
-export default function Hero({ featuredProduct, productCount, onShop }) {
+export default function Hero({
+  featuredProduct,
+  productCount,
+  onShop,
+  isLoading = false,
+}) {
+  const product = featuredProduct;
+  const image = product?.image || product?.imageUrl || '';
+  const rating = Number(product?.rating) || 0;
+  const reviews = Number(product?.reviews) || 0;
+
   return (
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-copy">
@@ -36,7 +53,7 @@ export default function Hero({ featuredProduct, productCount, onShop }) {
             <span>from 2,400+ reviews</span>
           </li>
           <li>
-            <strong>{productCount}</strong>
+            <strong>{isLoading && productCount === 0 ? '...' : productCount}</strong>
             <span>curated products</span>
           </li>
           <li>
@@ -52,29 +69,47 @@ export default function Hero({ featuredProduct, productCount, onShop }) {
             <Sparkles size={12} />
             Editor's pick
           </span>
-          <img
-            className="spotlight-image"
-            src={featuredProduct.image}
-            alt=""
-            width="900"
-            height="675"
-          />
+
+          {image ? (
+            <img
+              className="spotlight-image"
+              src={image}
+              alt=""
+              width="900"
+              height="675"
+            />
+          ) : (
+            <div className="spotlight-placeholder">
+              <LoaderCircle
+                size={30}
+                className={isLoading ? 'spinner' : undefined}
+              />
+              <span>{isLoading ? 'Loading catalogue' : 'Catalogue unavailable'}</span>
+            </div>
+          )}
+
           <div className="spotlight-info">
             <div>
-              <h3>{featuredProduct.name}</h3>
-              <p>{featuredProduct.category} · Wireless</p>
+              <h3>{product?.name || 'DZ Tech collection'}</h3>
+              <p>
+                {product
+                  ? `${product.category || 'Gear'} · Curated by DZ Tech`
+                  : 'Connecting to the storefront API'}
+              </p>
             </div>
             <span className="spotlight-price">
-              {formatCurrency(featuredProduct.price)}
+              {product ? formatCurrency(product.price) : '-'}
             </span>
           </div>
         </div>
 
-        <div className="floating-card floating-rating">
-          <Star size={14} fill="currentColor" />
-          <strong>{featuredProduct.rating}</strong>
-          <span>{featuredProduct.reviews} reviews</span>
-        </div>
+        {product && rating > 0 && (
+          <div className="floating-card floating-rating">
+            <Star size={14} fill="currentColor" />
+            <strong>{rating.toFixed(1)}</strong>
+            <span>{reviews} reviews</span>
+          </div>
+        )}
 
         <div className="floating-card floating-shipping">
           <ShieldCheck size={15} />

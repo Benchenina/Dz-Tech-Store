@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   ArrowRight,
   CheckCircle2,
+  Cpu,
   ShieldCheck,
   ShoppingBag,
   Trash2,
@@ -212,13 +213,19 @@ export default function CartDrawer({ isOpen, onClose, onBrowse }) {
             <ul className="cart-list">
               {items.map((item) => (
                 <li key={item.id} className="cart-item">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    width="76"
-                    height="92"
-                    loading="lazy"
-                  />
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      width="76"
+                      height="92"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="cart-item-image-fallback" aria-hidden="true">
+                      <Cpu size={24} strokeWidth={1.5} />
+                    </div>
+                  )}
 
                   <div className="cart-item-info">
                     <div className="cart-item-top">
